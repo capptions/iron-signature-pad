@@ -1,0 +1,88 @@
+<link rel="import" href="../polymer/polymer.html" />
+<script src="./signature_pad.min.js"></script>
+
+<dom-module id="iron-signature-pad">
+  <template>
+    <canvas id="canvas"></canvas>
+  </template>
+</dom-module>
+
+<script>
+(function () {
+
+  window.Polymer({
+    is: 'iron-signature-pad',
+
+    properties: {
+      color: {
+        type: String,
+        value: '#000000',
+        observer: 'update'
+      },
+      width: {
+        type: Number,
+        value: 500,
+        observer: 'render'
+      },
+      height: {
+        type: Number,
+        value: 500,
+        observer: 'render'
+      },
+      dirty: {
+        type: Boolean,
+        value: false,
+        notify: true
+      }
+    },
+
+    ready: function () {
+      this.render();
+    },
+
+    render: function () {
+      var ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+      this.$.canvas.width = ratio * this.width;
+      this.$.canvas.height = ratio * this.height;
+      this.$.canvas.style.width = this.width + 'px';
+      this.$.canvas.style.height = this.height + 'px';
+      this.$.canvas.getContext('2d').scale(ratio, ratio);
+
+      this._signature_pad = new window.SignaturePad(this.$.canvas, {
+        onEnd: function () {
+          this.set('dirty', !this._signature_pad.isEmpty());
+        }.bind(this)
+      });
+
+      this.update();
+    },
+
+    update: function () {
+      if (!this._signature_pad) {
+        return;
+      }
+
+      this._signature_pad.penColor = this.color;
+    },
+
+    clear: function () {
+      if (!this._signature_pad) {
+        return;
+      }
+
+      this._signature_pad.clear();
+      this.set('dirty', false);
+    },
+
+    getData: function () {
+      if (!this._signature_pad) {
+        return;
+      }
+
+      return this._signature_pad.toDataURL();
+    }
+  });
+
+})();
+</script>

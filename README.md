@@ -1,9 +1,9 @@
-sc-atrament
+iron-signature-pad
 ============
 
 Polymer 1.0 element that wraps around atrament.js
 
-`<sc-atrament>` is an element that renders a canvas drawing area using atrament.js
+`<iron-signature-pad>` is an element that renders a canvas drawing area using signature_pad.js
 
 ## Getting started
 
@@ -12,13 +12,13 @@ Polymer 1.0 element that wraps around atrament.js
 First you need bower, [see their site](http://bower.io/) for details
 
 ```
-bower install --save sc-atrament
+bower install --save iron-signature-pad
 ```
 
 ### How to use
 
 ```html
-  <sc-atrament></sc-atrament>
+  <iron-signature-pad></iron-signature-pad>
 ```
 
 Contributions welcome, please create issues!

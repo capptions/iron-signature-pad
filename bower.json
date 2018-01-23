@@ -1,6 +1,6 @@
 {
-  "name": "sc-atrament",
-  "description": "Polymer 1.0 element that wraps around atrament.js",
+  "name": "iron-signature-pad",
+  "description": "Polymer 1.0 element that wraps around signature_pad.js",
   "authors": [
     "Safety Changer"
   ],
@@ -8,21 +8,21 @@
     "web-components",
     "web-component",
     "polymer",
-    "atrament",
+    "signature",
+    "signature_pad",
     "draw",
     "canvas"
   ],
-  "main": "sc-atrament.html",
+  "main": "iron-signature-pad.html",
   "ignore": {},
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git://github.com/safetychanger/sc-atrament"
+    "url": "git://github.com/safetychanger/iron-signature-pad"
   },
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/safetychanger/sc-atrament",
+  "homepage": "https://github.com/safetychanger/iron-signature-pad",
   "dependencies": {
-    "polymer": "latest",
-    "atrament": "latest"
+    "polymer": "1.x"
   }
 }
