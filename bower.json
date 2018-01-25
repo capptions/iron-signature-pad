@@ -23,6 +23,8 @@
   "license": "http://polymer.github.io/LICENSE.txt",
   "homepage": "https://github.com/safetychanger/iron-signature-pad",
   "dependencies": {
-    "polymer": "1.x"
+    "polymer": "1.x",
+    "paper-swatch-picker": "1.x",
+    "paper-icon-button": "1.x"
   }
 }

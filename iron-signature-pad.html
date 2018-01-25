@@ -1,8 +1,38 @@
 <link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+
 <script src="./signature_pad.min.js"></script>
 
 <dom-module id="iron-signature-pad">
+  <style>
+    canvas {
+      display: inherit;
+    }
+
+    .tools {
+      position: absolute;
+      z-index: 1;
+    }
+
+    .tools paper-swatch-picker {
+      --paper-swatch-picker-icon: {
+        background-color: #fff;
+        border-radius: 100%;
+      };
+    }
+
+    .tools paper-icon-button {
+      background-color: #fff;
+      border-radius: 100%;
+    }
+  </style>
+
   <template>
+    <div class="tools">
+      <paper-swatch-picker id="swatchPicker" color="{{color}}" color-list="[[colorList]]"></paper-swatch-picker>
+      <paper-icon-button icon="undo" on-tap="undo"></paper-icon-button>
+    </div>
     <canvas id="canvas"></canvas>
   </template>
 </dom-module>
@@ -18,6 +48,20 @@
         type: String,
         value: '#000000',
         observer: 'update'
+      },
+      backgroundColor: {
+        type: String,
+        value: '#ffffff',
+        observer: 'update'
+      },
+      backgroundImage: {
+        type: String,
+        value: null,
+        observer: 'update'
+      },
+      colorList: {
+        type: Array,
+        value: ['#000000','#f44336','#e91e63','#9c27b0','#673ab7','#3f51b5','#2196f3','#03a9f4','#00bcd4','#009688','#4caf50','#8bc34a','#cddc39','#ffeb3b','#ffc107','#ff9800','#ff5722','#795548','#9e9e9e']
       },
       width: {
         type: Number,
@@ -42,11 +86,13 @@
 
     render: function () {
       var ratio = Math.max(window.devicePixelRatio || 1, 1);
+      var width = this.width;
+      var height = this.height;
 
-      this.$.canvas.width = ratio * this.width;
-      this.$.canvas.height = ratio * this.height;
-      this.$.canvas.style.width = this.width + 'px';
-      this.$.canvas.style.height = this.height + 'px';
+      this.$.canvas.width = ratio * width;
+      this.$.canvas.height = ratio * height;
+      this.$.canvas.style.width = width + 'px';
+      this.$.canvas.style.height = height + 'px';
       this.$.canvas.getContext('2d').scale(ratio, ratio);
 
       this._signature_pad = new window.SignaturePad(this.$.canvas, {
@@ -54,6 +100,26 @@
           this.set('dirty', !this._signature_pad.isEmpty());
         }.bind(this)
       });
+
+      this._signature_pad.clear = function () {
+        var ctx = this._ctx;
+        var canvas = this._canvas;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (this.backgroundImage) {
+          ctx.drawImage(this.backgroundImage, 0, 0, width, height);
+        }
+        else {
+          ctx.fillStyle = this.backgroundColor;
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        this._data = [];
+        this._reset();
+        this._isEmpty = true;
+      };
+
 
       this.update();
     },
@@ -64,6 +130,16 @@
       }
 
       this._signature_pad.penColor = this.color;
+
+      if (this._signature_pad.backgroundColor !== this.backgroundColor) {
+        this._signature_pad.backgroundColor = this.backgroundColor;
+        this.clear();
+      }
+
+      if (this._signature_pad.backgroundImage !== this.backgroundImage) {
+        this._signature_pad.backgroundImage = this.backgroundImage;
+        this.clear();
+      }
     },
 
     clear: function () {
@@ -81,6 +157,22 @@
       }
 
       return this._signature_pad.toDataURL();
+    },
+
+    undo: function () {
+      if (!this._signature_pad) {
+        return;
+      }
+
+      var data = this._signature_pad.toData();
+
+      if (!data || !data.length) {
+        return;
+      }
+
+      data.pop();
+      this._signature_pad.clear();
+      this._signature_pad.fromData(data);
     }
   });
 
