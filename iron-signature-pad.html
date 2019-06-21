@@ -25,6 +25,7 @@
     .tools paper-icon-button {
       background-color: #fff;
       border-radius: 100%;
+      margin-right: 8px;
     }
   </style>
 
@@ -32,6 +33,7 @@
     <div class="tools">
       <paper-swatch-picker id="swatchPicker" color="{{color}}" color-list="[[colorList]]"></paper-swatch-picker>
       <paper-icon-button icon="undo" on-tap="undo"></paper-icon-button>
+      <paper-icon-button icon="border-outer" on-tap="toggleBorder" toggles></paper-icon-button>
     </div>
     <canvas id="canvas"></canvas>
   </template>
@@ -85,6 +87,8 @@
     },
 
     render: function () {
+      var el = this;
+
       var ratio = Math.max(window.devicePixelRatio || 1, 1);
       var width = this.width;
       var height = this.height;
@@ -97,8 +101,8 @@
 
       this._signature_pad = new window.SignaturePad(this.$.canvas, {
         onEnd: function () {
-          this.set('dirty', !this._signature_pad.isEmpty());
-        }.bind(this)
+          this.set('dirty', this._border || !this._signature_pad.isEmpty());
+        }.bind(el)
       });
 
       this._signature_pad.clear = function () {
@@ -118,8 +122,11 @@
         this._data = [];
         this._reset();
         this._isEmpty = true;
-      };
 
+        if (el._border) {
+          el.drawBorder(this._border);
+        }
+      };
 
       this.update();
     },
@@ -148,7 +155,7 @@
       }
 
       this._signature_pad.clear();
-      this.set('dirty', false);
+      this.set('dirty', !!this._border);
     },
 
     getData: function () {
@@ -160,19 +167,65 @@
     },
 
     undo: function () {
-      if (!this._signature_pad) {
+      var pad = this._signature_pad;
+
+      if (!pad) {
         return;
       }
 
-      var data = this._signature_pad.toData();
+      var data = pad.toData();
 
       if (!data || !data.length) {
         return;
       }
 
       data.pop();
-      this._signature_pad.clear();
-      this._signature_pad.fromData(data);
+      pad.fromData(data);
+    },
+
+    toggleBorder: function () {
+      var pad = this._signature_pad;
+
+      if (!pad) {
+        return;
+      }
+
+      var ctx = pad._ctx;
+
+      if (this._border === this.borderColor()) {
+        delete this._border;
+
+        var data = pad.toData();
+
+        this.clear();
+        pad.fromData(data);
+
+        return;
+      }
+
+      this._border = this.borderColor();
+      this.drawBorder(this._border);
+    },
+
+    borderColor: function () {
+      // Border color can not be black, then red...
+      return this.color.replace('#000000', '#FF0000');
+    },
+
+    drawBorder: function (color) {
+      var pad = this._signature_pad;
+
+      if (!pad) {
+        return;
+      }
+
+      this.set('dirty', true);
+
+      var ctx = pad._ctx;
+
+      ctx.lineWidth = 20;
+      ctx.strokeStyle = color;
+      ctx.strokeRect(0, 0, pad._canvas.clientWidth, pad._canvas.clientHeight);
     }
   });
 
