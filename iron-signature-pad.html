@@ -124,7 +124,12 @@
         ctx.clearRect(0, 0, width, height);
 
         if (this.backgroundImage) {
-          ctx.drawImage(this.backgroundImage, 0, 0, width, height);
+          try {
+            ctx.drawImage(this.backgroundImage, 0, 0, width, height);
+          }
+          catch (ex) {
+            return;
+          }
         }
         else {
           ctx.fillStyle = this.backgroundColor;
